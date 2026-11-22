@@ -318,7 +318,7 @@ export async function updateStoreSettings(payload = {}) {
     }
   }
 
-  // Payment settings
+    // Payment settings
   if (payload.paymentSettings !== undefined) {
     if (payload.paymentSettings.paystackEnabled !== undefined) {
       update['paymentSettings.paystackEnabled'] = parseBoolean(
@@ -334,8 +334,43 @@ export async function updateStoreSettings(payload = {}) {
       );
     }
 
-    if (payload.paymentSettings.bankTransfer !== undefined) update['paymentSettings.bankTransfer'] = parseBoolean(payload.paymentSettings.bankTransfer, 'paymentSettings.bankTransfer');
-    if (payload.paymentSettings.bankDetails) for (const field of ['bankName', 'accountName', 'accountNumber', 'accountType', 'instructions']) { if (payload.paymentSettings.bankDetails[field] !== undefined) update[`paymentSettings.bankDetails.${field}`] = String(payload.paymentSettings.bankDetails[field]).trim(); }
+    if (payload.paymentSettings.bankTransfer !== undefined) {
+      update['paymentSettings.bankTransfer'] = parseBoolean(
+        payload.paymentSettings.bankTransfer,
+        'paymentSettings.bankTransfer'
+      );
+    }
+
+    // Keep support for existing single-account settings
+    if (payload.paymentSettings.bankDetails) {
+      for (const field of [
+        'bankName',
+        'accountName',
+        'accountNumber',
+        'accountType',
+        'instructions',
+      ]) {
+        if (payload.paymentSettings.bankDetails[field] !== undefined) {
+          update[`paymentSettings.bankDetails.${field}`] = String(
+            payload.paymentSettings.bankDetails[field]
+          ).trim();
+        }
+      }
+    }
+
+    // Save the multiple bank accounts list
+    if (Array.isArray(payload.paymentSettings.bankAccounts)) {
+      update['paymentSettings.bankAccounts'] =
+        payload.paymentSettings.bankAccounts.map((account) => ({
+          ...(account._id ? { _id: account._id } : {}),
+          bankName: String(account.bankName ?? '').trim(),
+          accountName: String(account.accountName ?? '').trim(),
+          accountNumber: String(account.accountNumber ?? '').trim(),
+          accountType: String(account.accountType ?? '').trim(),
+          instructions: String(account.instructions ?? '').trim(),
+          active: account.active !== false,
+        }));
+    }
   }
 
   // Delivery settings

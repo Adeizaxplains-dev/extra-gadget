@@ -91,15 +91,122 @@ export function OrderDetail() {
           <span>{formatCurrency(order.total)}</span>
         </div>
 
-        {order.paymentMethod === 'bank_transfer' && order.paymentStatus !== 'paid' && store?.paymentSettings?.bankDetails && <div className="mt-6 rounded-xl border border-amber-200 bg-amber-50 p-5 text-left">
-          <h2 className="font-semibold text-charcoal">Complete your bank transfer</h2>
-          <p className="mt-1 text-sm text-charcoal/70">Transfer the exact order total below. Your order remains pending until Ex-tra Gadgets verifies the payment.</p>
-          <dl className="mt-4 grid gap-2 text-sm"><div><dt className="text-muted">Bank</dt><dd className="font-semibold">{store.paymentSettings.bankDetails.bankName}</dd></div><div><dt className="text-muted">Account name</dt><dd className="font-semibold">{store.paymentSettings.bankDetails.accountName}</dd></div><div><dt className="text-muted">Account number</dt><dd className="font-semibold">{store.paymentSettings.bankDetails.accountNumber}</dd></div>{store.paymentSettings.bankDetails.accountType && <div><dt className="text-muted">Account type</dt><dd>{store.paymentSettings.bankDetails.accountType}</dd></div>}<div><dt className="text-muted">Amount</dt><dd className="font-bold">{formatCurrency(order.total)}</dd></div><div><dt className="text-muted">Transfer narration/reference</dt><dd className="font-semibold">{order.orderNumber}</dd></div></dl>
-          {store.paymentSettings.bankDetails.instructions && <p className="mt-3 text-sm">{store.paymentSettings.bankDetails.instructions}</p>}
-          {order.transferReference && <p className="mt-2 text-sm">Your transfer reference: {order.transferReference}</p>}
-          {!order.transferReference && <form className="mt-3 space-y-2" onSubmit={async(e)=>{e.preventDefault();await orderService.submitTransferReference(order._id,{sessionId:getSessionId(),transferReference});setReferenceSaved(true);loadOrder();}}><Input label="Bank transfer reference (optional)" value={transferReference} onChange={(e)=>setTransferReference(e.target.value)} placeholder="Enter the bank transaction reference"/><Button type="submit" size="sm" disabled={transferReference.trim().length<2}>Submit reference</Button>{referenceSaved&&<p className="text-xs text-emerald">Reference submitted.</p>}</form>}
-          <p className="mt-3 text-xs text-charcoal/60">Please contact the store on WhatsApp after transferring if you need to share additional payment information.</p>
-        </div>}
+{order.paymentMethod === 'bank_transfer' &&
+  order.paymentStatus !== 'paid' &&
+  (order.bankAccount || store?.paymentSettings?.bankDetails) && (
+    <div className="mt-6 rounded-xl border border-amber-200 bg-amber-50 p-5 text-left">
+      <h2 className="font-semibold text-charcoal">
+        Complete your bank transfer
+      </h2>
+
+      <p className="mt-1 text-sm text-charcoal/70">
+        Transfer the exact order total below. Your order remains pending until
+        Ex-tra Gadgets verifies the payment.
+      </p>
+
+      <dl className="mt-4 grid gap-2 text-sm">
+        <div>
+          <dt className="text-muted">Bank</dt>
+          <dd className="font-semibold">
+            {order.bankAccount?.bankName ||
+              store?.paymentSettings?.bankDetails?.bankName}
+          </dd>
+        </div>
+
+        <div>
+          <dt className="text-muted">Account name</dt>
+          <dd className="font-semibold">
+            {order.bankAccount?.accountName ||
+              store?.paymentSettings?.bankDetails?.accountName}
+          </dd>
+        </div>
+
+        <div>
+          <dt className="text-muted">Account number</dt>
+          <dd className="font-semibold">
+            {order.bankAccount?.accountNumber ||
+              store?.paymentSettings?.bankDetails?.accountNumber}
+          </dd>
+        </div>
+
+        {(order.bankAccount?.accountType ||
+          store?.paymentSettings?.bankDetails?.accountType) && (
+          <div>
+            <dt className="text-muted">Account type</dt>
+            <dd>
+              {order.bankAccount?.accountType ||
+                store?.paymentSettings?.bankDetails?.accountType}
+            </dd>
+          </div>
+        )}
+
+        <div>
+          <dt className="text-muted">Amount</dt>
+          <dd className="font-bold">{formatCurrency(order.total)}</dd>
+        </div>
+
+        <div>
+          <dt className="text-muted">Transfer narration/reference</dt>
+          <dd className="font-semibold">{order.orderNumber}</dd>
+        </div>
+      </dl>
+
+      {(order.bankAccount?.instructions ||
+        store?.paymentSettings?.bankDetails?.instructions) && (
+        <p className="mt-3 text-sm">
+          {order.bankAccount?.instructions ||
+            store?.paymentSettings?.bankDetails?.instructions}
+        </p>
+      )}
+
+      {order.transferReference && (
+        <p className="mt-2 text-sm">
+          Your transfer reference: {order.transferReference}
+        </p>
+      )}
+
+      {!order.transferReference && (
+        <form
+          className="mt-3 space-y-2"
+          onSubmit={async (e) => {
+            e.preventDefault();
+
+            await orderService.submitTransferReference(order._id, {
+              sessionId: getSessionId(),
+              transferReference,
+            });
+
+            setReferenceSaved(true);
+            loadOrder();
+          }}
+        >
+          <Input
+            label="Bank transfer reference (optional)"
+            value={transferReference}
+            onChange={(e) => setTransferReference(e.target.value)}
+            placeholder="Enter the bank transaction reference"
+          />
+
+          <Button
+            type="submit"
+            size="sm"
+            disabled={transferReference.trim().length < 2}
+          >
+            Submit reference
+          </Button>
+
+          {referenceSaved && (
+            <p className="text-xs text-emerald">Reference submitted.</p>
+          )}
+        </form>
+      )}
+
+      <p className="mt-3 text-xs text-charcoal/60">
+        Please contact the store on WhatsApp after transferring if you need to
+        share additional payment information.
+      </p>
+    </div>
+  )}
         {order.fulfilmentMethod === 'pickup' && <div className="mt-6 rounded-xl bg-gray-50 p-4 text-left text-sm"><h2 className="font-semibold">Store pickup</h2><p>{order.pickup?.locationName}</p><p>{order.pickup?.address}</p>{order.pickup?.phone && <p>{order.pickup.phone}</p>}{order.pickup?.openingHours && <p>Hours: {order.pickup.openingHours}</p>}{order.pickup?.instructions && <p className="mt-2">{order.pickup.instructions}</p>}</div>}
 
         <div className="mt-8 flex flex-col gap-3 sm:flex-row">

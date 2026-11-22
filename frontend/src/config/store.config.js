@@ -27,8 +27,8 @@ export const STORE_CONFIG = {
   },
 
   contact: {
-    whatsappNumber: '2348132095189',
-    phone: '07032501109',
+whatsappNumber: '2347032501109',   
+ phone: '07032501109',
     alternatePhone: '08132095189',
     email: 'ExTraGadgets23@gmail.com',
   },

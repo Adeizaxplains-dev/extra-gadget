@@ -1,4 +1,4 @@
-# Flerläss Global — Backend
+# Extra Gadget — Backend
 
 Node.js + Express + MongoDB/Mongoose API for the Flerläss Global gadget/
 electronics storefront and admin dashboard. Originally built for a
@@ -26,18 +26,18 @@ npm run dev
 
 Matches what the frontend's `src/services/*.js` files already call:
 
-| Area | Routes |
-|---|---|
-| Store | `GET /api/store` (public), `GET/PATCH /api/store/admin` |
-| Categories | `GET /api/categories`, `GET /api/categories/:slug`, admin CRUD |
-| Products | `GET /api/products`, `GET /api/products/:slug`, admin CRUD + low-stock |
-| Cart | `GET/POST/PATCH/DELETE /api/cart/*` |
-| Orders | `POST /api/orders`, admin list/detail/status update |
-| Payments | Paystack init/verify + webhook (mounted with raw body in `app.js`) |
-| Customers | Admin CRUD, denormalized order stats |
-| Analytics | `GET /api/analytics/overview`, `/sales`, `/top-products`, `/funnel`, `/acquisition` |
-| Events | `POST /api/events` — funnel tracking (`product_view`, `add_to_cart`, etc.) |
-| Campaigns / Automations / Team / Conversations | Admin-only, for WhatsApp CRM and staff management |
+| Area                                           | Routes                                                                              |
+| ---------------------------------------------- | ----------------------------------------------------------------------------------- |
+| Store                                          | `GET /api/store` (public), `GET/PATCH /api/store/admin`                             |
+| Categories                                     | `GET /api/categories`, `GET /api/categories/:slug`, admin CRUD                      |
+| Products                                       | `GET /api/products`, `GET /api/products/:slug`, admin CRUD + low-stock              |
+| Cart                                           | `GET/POST/PATCH/DELETE /api/cart/*`                                                 |
+| Orders                                         | `POST /api/orders`, admin list/detail/status update                                 |
+| Payments                                       | Paystack init/verify + webhook (mounted with raw body in `app.js`)                  |
+| Customers                                      | Admin CRUD, denormalized order stats                                                |
+| Analytics                                      | `GET /api/analytics/overview`, `/sales`, `/top-products`, `/funnel`, `/acquisition` |
+| Events                                         | `POST /api/events` — funnel tracking (`product_view`, `add_to_cart`, etc.)          |
+| Campaigns / Automations / Team / Conversations | Admin-only, for WhatsApp CRM and staff management                                   |
 
 ## Rebrand notes (Umm-Faisal → Flerläss Global)
 

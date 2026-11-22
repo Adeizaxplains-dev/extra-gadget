@@ -60,19 +60,150 @@ export async function createOrderFromCart(sessionId, payload) {
   }
 
   const store = await Store.findById(storeId);
+
+  if (!store) {
+    throw AppError.notFound('Store not found');
+  }
+
   const fulfilmentMethod = payload.fulfilmentMethod || 'delivery';
   const paymentMethod = payload.paymentMethod || 'bank_transfer';
-  if (fulfilmentMethod === 'delivery' && (!store.deliverySettings?.enabled || !payload?.delivery?.address || !payload?.delivery?.state || !payload?.delivery?.city)) throw AppError.badRequest('Delivery is unavailable or delivery address is incomplete');
-  if (fulfilmentMethod === 'pickup' && (!store.pickupSettings?.enabled || !store.pickupSettings?.address)) throw AppError.badRequest('Store pickup is not currently available');
-  if (paymentMethod === 'bank_transfer' && (!store.paymentSettings?.bankTransfer || !store.paymentSettings?.bankDetails?.bankName || !store.paymentSettings?.bankDetails?.accountName || !store.paymentSettings?.bankDetails?.accountNumber)) throw AppError.badRequest('Bank transfer is not currently available');
-  if (paymentMethod === 'paystack' && !store.paymentSettings?.paystackEnabled) throw AppError.badRequest('Online card payment is not currently available');
-  if (paymentMethod === 'cash_on_delivery') throw AppError.badRequest('Cash on delivery is not part of the current checkout release');
+
+  if (
+    fulfilmentMethod === 'delivery' &&
+    (
+      !store.deliverySettings?.enabled ||
+      !payload?.delivery?.address ||
+      !payload?.delivery?.state ||
+      !payload?.delivery?.city
+    )
+  ) {
+    throw AppError.badRequest(
+      'Delivery is unavailable or delivery address is incomplete'
+    );
+  }
+
+  if (
+    fulfilmentMethod === 'pickup' &&
+    (
+      !store.pickupSettings?.enabled ||
+      !store.pickupSettings?.address
+    )
+  ) {
+    throw AppError.badRequest(
+      'Store pickup is not currently available'
+    );
+  }
+
+  let bankAccountSnapshot;
+
+  if (paymentMethod === 'bank_transfer') {
+    if (!store.paymentSettings?.bankTransfer) {
+      throw AppError.badRequest(
+        'Bank transfer is not currently available'
+      );
+    }
+
+    const bankAccounts = Array.isArray(
+      store.paymentSettings?.bankAccounts
+    )
+      ? store.paymentSettings.bankAccounts
+      : [];
+
+    let selectedBankAccount;
+
+    if (bankAccounts.length > 0) {
+      // Multiple-account setup: require the customer to select
+      // an active account with complete bank details.
+      const activeAccounts = bankAccounts.filter(
+        (account) =>
+          account.active !== false &&
+          account.bankName &&
+          account.accountName &&
+          account.accountNumber
+      );
+
+      if (activeAccounts.length === 0) {
+        throw AppError.badRequest(
+          'Bank transfer is not currently available'
+        );
+      }
+
+      const bankAccountId = String(
+        payload.bankAccountId || ''
+      ).trim();
+
+      if (!bankAccountId) {
+        throw AppError.badRequest(
+          'Please select a bank account for your transfer'
+        );
+      }
+
+      selectedBankAccount = activeAccounts.find(
+        (account) => String(account._id) === bankAccountId
+      );
+
+      if (!selectedBankAccount) {
+        throw AppError.badRequest(
+          'The selected bank account is unavailable'
+        );
+      }
+    } else {
+      // Backward compatibility: use the existing single account
+      // when the store has not configured bankAccounts.
+      selectedBankAccount = store.paymentSettings?.bankDetails;
+
+      if (
+        !selectedBankAccount?.bankName ||
+        !selectedBankAccount?.accountName ||
+        !selectedBankAccount?.accountNumber
+      ) {
+        throw AppError.badRequest(
+          'Bank transfer is not currently available'
+        );
+      }
+    }
+
+    // Save the selected account's details with this order.
+    // Later edits to the store's settings won't change this order.
+    bankAccountSnapshot = {
+      accountId: selectedBankAccount._id
+        ? String(selectedBankAccount._id)
+        : undefined,
+      bankName: selectedBankAccount.bankName,
+      accountName: selectedBankAccount.accountName,
+      accountNumber: selectedBankAccount.accountNumber,
+      accountType: selectedBankAccount.accountType || '',
+      instructions: selectedBankAccount.instructions || '',
+    };
+  }
+
+  if (
+    paymentMethod === 'paystack' &&
+    !store.paymentSettings?.paystackEnabled
+  ) {
+    throw AppError.badRequest(
+      'Online card payment is not currently available'
+    );
+  }
+
+  if (paymentMethod === 'cash_on_delivery') {
+    throw AppError.badRequest(
+      'Cash on delivery is not part of the current checkout release'
+    );
+  }
 
   const customer = await findOrCreateCustomer({
     name: payload.customer.name,
     phone: payload.customer.phone,
     email: payload.customer.email,
-    address: fulfilmentMethod === 'delivery' ? { line: payload.delivery.address, city: payload.delivery.city, state: payload.delivery.state } : undefined,
+    address:
+      fulfilmentMethod === 'delivery'
+        ? {
+            line: payload.delivery.address,
+            city: payload.delivery.city,
+            state: payload.delivery.state,
+          }
+        : undefined,
     source: payload.source,
     campaign: payload.campaign,
   });
@@ -82,13 +213,18 @@ export async function createOrderFromCart(sessionId, payload) {
 
   const subtotal = cart.getSubtotal();
 
-  // Delivery fee comes from the store's own configured settings — a flat
-  // fee, waived automatically once the order clears the store's free-
-  // delivery threshold (if one is set). Never hardcode a fee here.
-  const configuredFee = fulfilmentMethod === 'delivery' ? (store?.deliverySettings?.deliveryFee || 0) : 0;
+  // Delivery fee comes from the store's configured settings.
+  const configuredFee =
+    fulfilmentMethod === 'delivery'
+      ? store?.deliverySettings?.deliveryFee || 0
+      : 0;
+
   const freeThreshold = store?.deliverySettings?.freeDeliveryThreshold;
+
   const deliveryFee =
-    freeThreshold != null && subtotal >= freeThreshold ? 0 : configuredFee;
+    freeThreshold != null && subtotal >= freeThreshold
+      ? 0
+      : configuredFee;
 
   const total = subtotal + deliveryFee;
 
@@ -111,7 +247,6 @@ export async function createOrderFromCart(sessionId, payload) {
     orderNumber,
     customerId: customer._id,
 
-    // IMPORTANT:
     // Used later to authorize customer access to this order.
     sessionId,
 
@@ -132,13 +267,45 @@ export async function createOrderFromCart(sessionId, payload) {
 
     paymentMethod,
     transferReference: String(payload.transferReference || '').trim(),
+
+    // New: account selected by the customer.
+    bankAccount: bankAccountSnapshot,
+
     fulfilmentMethod,
     fulfilmentStatus: 'awaiting_payment',
-    pickup: fulfilmentMethod === 'pickup' ? { locationName: store.pickupSettings.locationName, address: store.pickupSettings.address, phone: store.pickupSettings.phone, openingHours: store.pickupSettings.openingHours, instructions: store.pickupSettings.instructions } : undefined,
+
+    pickup:
+      fulfilmentMethod === 'pickup'
+        ? {
+            locationName: store.pickupSettings.locationName,
+            address: store.pickupSettings.address,
+            phone: store.pickupSettings.phone,
+            openingHours: store.pickupSettings.openingHours,
+            instructions: store.pickupSettings.instructions,
+          }
+        : undefined,
+
     paymentStatus: 'pending',
     orderStatus: 'pending',
 
-    delivery: { fullName: payload.customer.name, phone: payload.customer.phone, email: payload.customer.email || '', address: fulfilmentMethod === 'delivery' ? payload.delivery.address : '', state: fulfilmentMethod === 'delivery' ? payload.delivery.state : '', city: fulfilmentMethod === 'delivery' ? payload.delivery.city : '', note: payload.delivery?.note || '' },
+    delivery: {
+      fullName: payload.customer.name,
+      phone: payload.customer.phone,
+      email: payload.customer.email || '',
+      address:
+        fulfilmentMethod === 'delivery'
+          ? payload.delivery.address
+          : '',
+      state:
+        fulfilmentMethod === 'delivery'
+          ? payload.delivery.state
+          : '',
+      city:
+        fulfilmentMethod === 'delivery'
+          ? payload.delivery.city
+          : '',
+      note: payload.delivery?.note || '',
+    },
 
     source: payload.source || '',
     campaign: payload.campaign || '',
@@ -149,10 +316,7 @@ export async function createOrderFromCart(sessionId, payload) {
 
   /*
    * Payment follow-up.
-   *
-   * This does NOT mean the customer has abandoned payment.
-   * The automation processor must check the current paymentStatus
-   * before sending anything.
+   * The automation processor must check paymentStatus before sending.
    */
   await createPaymentFollowUpAutomation({
     order,
@@ -163,6 +327,7 @@ export async function createOrderFromCart(sessionId, payload) {
   return order;
 }
 
+  
 /**
  * Gets an order by MongoDB ID.
  *

@@ -23,7 +23,7 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-ivory/95 backdrop-blur">
-      <div className="container-page flex h-16 items-center justify-between gap-4">
+      <div className="container-page flex h-20 items-center justify-between gap-4 lg:h-16">
         <button
           className="text-charcoal lg:hidden"
           aria-label={menuOpen ? 'Close menu' : 'Open menu'}
@@ -36,7 +36,7 @@ export function Header() {
           <img
             src={store?.logoUrl || STORE_CONFIG.brand.logo}
             alt={store?.name || STORE_CONFIG.brand.name}
-            className="h-11 w-auto max-w-[150px] object-contain"
+            className="h-16 w-auto max-w-[180px] object-contain"
             onError={(e) => {
               e.currentTarget.style.display = 'none';
             }}

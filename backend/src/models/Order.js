@@ -24,23 +24,49 @@ const orderSchema = new mongoose.Schema(
     customerId: { type: mongoose.Schema.Types.ObjectId, ref: 'Customer', required: true, index: true },
 
     sessionId: {
-  type: String,
-  required: true,
-  index: true,
-},
+      type: String,
+      required: true,
+      index: true,
+    },
+
     items: [orderItemSchema],
     subtotal: { type: Number, required: true },
     deliveryFee: { type: Number, default: 0 },
     total: { type: Number, required: true },
 
-    // Kept conceptually separate per architecture decision: a paid order
-    // can still be "processing"; these must never be merged into one field.
-    paymentMethod: { type: String, enum: ['bank_transfer', 'paystack', 'cash_on_delivery'], default: 'bank_transfer' },
+    // A paid order can still be processing; these statuses remain separate.
+    paymentMethod: {
+      type: String,
+      enum: ['bank_transfer', 'paystack', 'cash_on_delivery'],
+      default: 'bank_transfer',
+    },
     transferReference: { type: String, default: '' },
+
+    // Snapshot of the bank account selected for this order.
+    // Later changes to the store's account list won't alter this order's details.
+    bankAccount: {
+      accountId: { type: String, default: '' },
+      bankName: { type: String, default: '' },
+      accountName: { type: String, default: '' },
+      accountNumber: { type: String, default: '' },
+      accountType: { type: String, default: '' },
+      instructions: { type: String, default: '' },
+    },
+
     paymentRejectionReason: { type: String, default: '' },
     fulfilmentMethod: { type: String, enum: ['delivery', 'pickup'], default: 'delivery' },
-    pickup: { locationName: { type: String, default: '' }, address: { type: String, default: '' }, phone: { type: String, default: '' }, openingHours: { type: String, default: '' }, instructions: { type: String, default: '' } },
-    fulfilmentStatus: { type: String, enum: ['awaiting_payment', 'processing', 'ready_for_pickup', 'dispatched', 'completed'], default: 'awaiting_payment' },
+    pickup: {
+      locationName: { type: String, default: '' },
+      address: { type: String, default: '' },
+      phone: { type: String, default: '' },
+      openingHours: { type: String, default: '' },
+      instructions: { type: String, default: '' },
+    },
+    fulfilmentStatus: {
+      type: String,
+      enum: ['awaiting_payment', 'processing', 'ready_for_pickup', 'dispatched', 'completed'],
+      default: 'awaiting_payment',
+    },
     paymentStatus: {
       type: String,
       enum: ['pending', 'paid', 'failed', 'refunded'],

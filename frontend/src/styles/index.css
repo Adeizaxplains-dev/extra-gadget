@@ -527,3 +527,81 @@
     }
   }
 }
+/* Mobile refinements: compact hero and clearer brand logo */
+@media (max-width: 640px) {
+  .hero-premium-container {
+    gap: 24px;
+    padding-top: 26px;
+    padding-bottom: 24px;
+  }
+
+  .hero-premium-heading {
+    margin-top: 14px;
+    font-size: clamp(32px, 9vw, 42px);
+    line-height: 1;
+  }
+
+  .hero-premium-heading .hero-heading-accent {
+    margin-top: 4px;
+  }
+
+  .hero-premium-description {
+    margin-top: 12px;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  .hero-premium-actions {
+    gap: 10px;
+    margin-top: 18px;
+  }
+
+  .hero-premium-assurance {
+    gap: 12px;
+    margin-top: 16px;
+  }
+
+  .hero-premium-location {
+    margin-top: 18px;
+  }
+}
+
+/* Final mobile hero tuning */
+@media (max-width: 640px) {
+  .hero-premium-container {
+    gap: 20px;
+    padding-top: 22px;
+    padding-bottom: 22px;
+  }
+
+  .hero-premium-heading {
+    font-size: clamp(30px, 8.5vw, 38px);
+    line-height: 1.02;
+  }
+
+  .hero-premium-description {
+    max-width: 100%;
+    font-size: 13px;
+    line-height: 1.55;
+  }
+
+  .hero-premium-actions {
+    margin-top: 16px;
+  }
+
+  .hero-premium-assurance {
+    margin-top: 14px;
+  }
+
+  .hero-premium-location {
+    margin-top: 16px;
+  }
+
+  .hero-showcase-image {
+    aspect-ratio: 1.35 / 1;
+  }
+
+  .hero-showcase-img {
+    padding: 8px;
+  }
+}

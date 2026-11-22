@@ -163,7 +163,7 @@ const storeSchema = new mongoose.Schema(
       },
     },
 
-    paymentSettings: {
+        paymentSettings: {
       paystackEnabled: {
         type: Boolean,
         default: false,
@@ -173,9 +173,24 @@ const storeSchema = new mongoose.Schema(
         default: false,
       },
       bankTransfer: { type: Boolean, default: false },
-      bankDetails: { bankName: { type: String, default: '' }, accountName: { type: String, default: '' }, accountNumber: { type: String, default: '' }, accountType: { type: String, default: '' }, instructions: { type: String, default: '' } },
+      bankDetails: {
+        bankName: { type: String, default: '' },
+        accountName: { type: String, default: '' },
+        accountNumber: { type: String, default: '' },
+        accountType: { type: String, default: '' },
+        instructions: { type: String, default: '' },
+      },
+      bankAccounts: [
+        {
+          bankName: { type: String, default: '' },
+          accountName: { type: String, default: '' },
+          accountNumber: { type: String, default: '' },
+          accountType: { type: String, default: '' },
+          instructions: { type: String, default: '' },
+          active: { type: Boolean, default: true },
+        },
+      ],
     },
-
     deliverySettings: {
       enabled: { type: Boolean, default: true },
       instructions: { type: String, default: '' },

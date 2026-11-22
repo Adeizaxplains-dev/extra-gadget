@@ -31,7 +31,7 @@ export function Login() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-ivory px-4">
       <div className="w-full max-w-sm rounded-xl bg-white p-8 shadow-card">
-        <h1 className="font-display text-xl font-semibold text-emerald">Flerläss Global Admin</h1>
+        <h1 className="font-display text-xl font-semibold text-emerald">Ex-tra Gadgets Admin</h1>
         <p className="mt-1 text-sm text-muted">Sign in to manage your store.</p>
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
