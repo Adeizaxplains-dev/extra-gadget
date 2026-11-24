@@ -44,7 +44,7 @@ whatsappNumber: '2347032501109',
   },
 
   locations: [
-    'Computer Village, Ikeja, Lagos',
+    'Suites 21, No. 12 Medical Road, opposite Sterling Bank, Computer Village, Ikeja, Lagos State, Nigeria.',
   ],
  
   sourcing: ['USA', 'Canada', 'UK', 'Dubai'],

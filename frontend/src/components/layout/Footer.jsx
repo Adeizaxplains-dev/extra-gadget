@@ -57,14 +57,46 @@ export function Footer() {
           </ul>
         </div>
 
-        <div>
-          <p className="text-sm font-semibold text-white">Customer</p>
-          <ul className="mt-3 space-y-2 text-sm text-white/60">
-            {FOOTER_LINKS.customer.map((l) => (
-              <li key={l.label}><Link to={l.to} className="hover:text-primary">{l.label}</Link></li>
-            ))}
-          </ul>
-        </div>
+       <div>
+  <p className="text-sm font-semibold text-white">Customer</p>
+
+  <ul className="mt-3 space-y-2 text-sm text-white/60">
+    {FOOTER_LINKS.customer.map((l) => (
+      <li key={l.label}>
+        <Link to={l.to} className="hover:text-primary">
+          {l.label}
+        </Link>
+      </li>
+    ))}
+
+    <li>
+      <Link
+        to="/warranty-returns-refunds"
+        className="hover:text-primary transition-colors"
+      >
+        Warranty, Returns & Refunds
+      </Link>
+    </li>
+
+    <li>
+      <Link
+        to="/terms-and-conditions"
+        className="hover:text-primary transition-colors"
+      >
+        Terms & Conditions
+      </Link>
+    </li>
+
+    <li>
+      <Link
+        to="/faqs"
+        className="hover:text-primary transition-colors"
+      >
+        Frequently Asked Questions
+      </Link>
+    </li>
+  </ul>
+</div>
 
         <div>
           <p className="text-sm font-semibold text-white">Company</p>

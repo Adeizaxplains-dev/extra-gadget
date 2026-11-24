@@ -14,6 +14,9 @@ import { About } from '../pages/store/About.jsx';
 import { Contact } from '../pages/store/Contact.jsx';
 import { Search } from '../pages/store/Search.jsx';
 import { NotFound } from '../pages/store/NotFound.jsx';
+import { WarrantyReturnsRefunds } from '../pages/store/WarrantyReturnsRefunds.jsx';
+import { TermsAndConditions } from '../pages/store/TermsAndConditions.jsx';
+import { FAQs } from '../pages/store/FAQs.jsx';
 
 import { Login } from '../pages/admin/Login.jsx';
 import { Dashboard } from '../pages/admin/Dashboard.jsx';
@@ -30,6 +33,7 @@ import { Campaigns } from '../pages/admin/Campaigns.jsx';
 import { Automations } from '../pages/admin/Automations.jsx';
 import { AutomationConfig } from '../pages/admin/AutomationConfig.jsx';
 import { Conversations } from '../pages/admin/Conversations.jsx';
+import { Homepage } from '../pages/admin/Homepage.jsx';
 import Team from '../pages/admin/Team.jsx';
 
 export function AppRoutes() {
@@ -47,6 +51,18 @@ export function AppRoutes() {
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/search" element={<Search />} />
+        <Route
+  path="/warranty-returns-refunds"
+  element={<WarrantyReturnsRefunds />}
+/>
+<Route
+  path="/terms-and-conditions"
+  element={<TermsAndConditions />}
+/>
+<Route
+  path="/faqs"
+  element={<FAQs />}
+/>
       </Route>
 
       {/* Admin login */}
@@ -61,7 +77,7 @@ export function AppRoutes() {
         <Route path="products/:id" element={<ProductForm />} />
 
         <Route path="categories" element={<Categories />} />
-
+        <Route path="homepage" element={<Homepage />} />
         <Route path="orders" element={<Orders />} />
         <Route path="orders/:id" element={<AdminOrderDetail />} />
 

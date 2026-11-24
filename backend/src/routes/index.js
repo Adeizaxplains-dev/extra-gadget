@@ -12,6 +12,7 @@ import eventRoutes from './eventRoutes.js';
 import storeRoutes from './storeRoutes.js';
 import campaignRoutes from './campaignRoutes.js';
 import automationRoutes from './automationRoutes.js';
+import homepageRoutes from './homepageRoutes.js';
 
 const router = Router();
 
@@ -28,7 +29,9 @@ router.use('/analytics', analyticsRoutes);
 router.use('/events', eventRoutes);
 router.use('/campaigns', campaignRoutes);
 router.use('/automations', automationRoutes);
-// Note: /api/payments/webhook is mounted directly in app.js (raw body
-// requirement), not here — see the comment there.
+router.use('/homepage', homepageRoutes);
+
+// Note: /api/payments/webhook is mounted directly in app.js
+// (raw body requirement), not here — see the comment there.
 
 export default router;

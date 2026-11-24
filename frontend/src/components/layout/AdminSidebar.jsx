@@ -14,6 +14,7 @@ import {
   Settings,
   LogOut,
   X,
+  PanelsTopLeft,
 } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth.js';
 
@@ -34,6 +35,11 @@ const LINKS = [
     label: 'Categories',
     icon: Tag,
   },
+  {
+  to: '/admin/homepage',
+  label: 'Homepage',
+  icon: PanelsTopLeft,
+},
   {
     to: '/admin/orders',
     label: 'Orders',
@@ -121,26 +127,31 @@ export function AdminSidebar({ open = false, onClose = () => {} }) {
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
-          {LINKS.map(({ to, label, icon: Icon, end }) => (
-            <NavLink
-              key={to}
-              to={to}
-              end={end}
-              onClick={onClose}
-              className={({ isActive }) =>
-                `flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
-                  isActive
-                    ? 'bg-emerald text-ivory'
-                    : 'text-charcoal/80 hover:bg-emerald/10'
-                }`
-              }
-            >
-              <Icon className="h-4.5 w-4.5" />
-              {label}
-            </NavLink>
-          ))}
-        </nav>
+       <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
+  {LINKS
+    .filter(
+      ({ to }) =>
+        to !== '/admin/homepage' || user?.role === 'admin'
+    )
+    .map(({ to, label, icon: Icon, end }) => (
+      <NavLink
+        key={to}
+        to={to}
+        end={end}
+        onClick={onClose}
+        className={({ isActive }) =>
+          `flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
+            isActive
+              ? 'bg-emerald text-ivory'
+              : 'text-charcoal/80 hover:bg-emerald/10'
+          }`
+        }
+      >
+        <Icon className="h-4.5 w-4.5" />
+        {label}
+      </NavLink>
+    ))}
+</nav>
 
         {/* User / logout */}
         <div className="border-t border-charcoal/10 p-4">
